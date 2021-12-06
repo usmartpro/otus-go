@@ -43,6 +43,12 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var textSpanish = `Por la noche, después de cenar, voy al salón a descansar. 
+	Me siento, abro un libro y empiezo a leer. A veces, escucho música al mismo 
+	tiempo. Me gustan los libros de historia. En especial, me gustan las biografías. 
+	La vida de actores, deportistas o políticos es muy interesante. Y yo 
+	siempre aprendo muchas cosas nuevas. Los libros son mejores que la televisión.`
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
 		require.Len(t, Top10(""), 0)
@@ -77,6 +83,24 @@ func TestTop10(t *testing.T) {
 				"то",        // 4
 			}
 			require.Equal(t, expected, Top10(text))
+		}
+	})
+
+	t.Run("spanish text test", func(t *testing.T) {
+		if !taskWithAsteriskIsCompleted {
+			expected := []string{
+				"de",
+				"Me",
+				"a",
+				"al",
+				"gustan",
+				"la",
+				"libros",
+				"A",
+				"En",
+				"La",
+			}
+			require.Equal(t, expected, Top10(textSpanish))
 		}
 	})
 }
