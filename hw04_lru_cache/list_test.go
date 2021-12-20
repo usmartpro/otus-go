@@ -48,4 +48,26 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
+
+	t.Run("days of week", func(t *testing.T) {
+		l := NewList()
+
+		l.PushFront("СР")       // ["СР"]
+		l.PushFront("ВТ")       // ["ВТ", "СР"]
+		l.PushBack("ЧТ")        // ["ВТ", "СР", "ЧТ"]
+		l.PushBack("ПТ")        // ["ВТ", "СР", "ЧТ", "ПТ"]
+		l.PushBack("СБ")        // ["ВТ", "СР", "ЧТ", "ПТ", "СБ"]
+		l.PushBack("ВС")        // ["ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"]
+		pn := l.PushFront("ПН") // ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"]
+		l.MoveToFront(pn)
+
+		require.Equal(t, 7, l.Len())
+
+		elems := make([]string, 0, l.Len())
+		for i := l.Front(); i != nil; i = i.Next {
+			elems = append(elems, i.Value.(string))
+		}
+
+		require.Equal(t, []string{"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"}, elems)
+	})
 }
