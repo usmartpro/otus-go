@@ -51,15 +51,13 @@ func (lC *lruCache) Get(key Key) (interface{}, bool) {
 		lC.queue.MoveToFront(mapItem)
 		// и возвращаем
 		return mapItem.Value.(*cacheItem).value, true
-	} else {
-		// элемент отсутствует
-		return nil, false
 	}
 
+	// элемент отсутствует
+	return nil, false
 }
 
 func (lC *lruCache) Clear() {
-
 }
 
 type cacheItem struct {
