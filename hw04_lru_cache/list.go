@@ -105,7 +105,7 @@ func (l *list) MoveToFront(i *ListItem) {
 	case i.Next == nil:
 		// последний элемент
 		i.Prev.Next = nil
-		l.backItem = i
+		l.backItem = i.Prev
 	default:
 		// не крайний элемент
 		i.Next.Prev = i.Prev
