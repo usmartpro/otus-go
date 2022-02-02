@@ -65,8 +65,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		limit = min(statSrc.Size()-offset, limit)
 	}
 
-	// копируем limit байт
-
 	// прогресс-бар
 	stepCount := limit / MaxCopyPerStep
 	bar := pb.New(int(stepCount) + 1)
