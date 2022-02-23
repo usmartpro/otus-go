@@ -24,7 +24,7 @@ type DomainStat map[string]int
 var (
 	ErrReaderEmpty = errors.New("невалидный reader")
 	ErrDomainEmpty = errors.New("невалидный domain")
-	ErrInvalidJson = errors.New("невалидный json")
+	ErrInvalidJSON = errors.New("невалидный json")
 )
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
@@ -43,7 +43,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 
 	for scanner.Scan() {
 		if !json.Valid(scanner.Bytes()) {
-			return nil, ErrInvalidJson
+			return nil, ErrInvalidJSON
 		}
 		if !bytes.Contains(scanner.Bytes(), []byte(domain)) {
 			continue
