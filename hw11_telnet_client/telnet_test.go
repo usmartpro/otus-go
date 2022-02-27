@@ -62,4 +62,20 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+
+	t.Run("error connect to server", func(t *testing.T) {
+		l, err := net.Listen("tcp", "127.0.0.1:")
+		require.NoError(t, err)
+		defer func() { require.NoError(t, l.Close()) }()
+
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+
+		timeout, err := time.ParseDuration("5s")
+		require.NoError(t, err)
+
+		client := NewTelnetClient("0.0.0.0:80", timeout, ioutil.NopCloser(in), out)
+		err = client.Connect()
+		require.ErrorIs(t, err, ErrConnectionError, "actual error is %q", err)
+	})
 }
