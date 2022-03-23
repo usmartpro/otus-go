@@ -1,0 +1,2 @@
+CREATE DATABASE calendar;
+GRANT ALL PRIVILEGES ON DATABASE calendar TO postgres;

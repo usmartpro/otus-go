@@ -3,21 +3,24 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/app"
+	internalconfig "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/config"
+	internallogger "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/server/http"
+	memorystorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "configs/config.yaml", "Path to configuration file")
 }
 
 func main() {
@@ -28,17 +31,23 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
-
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, calendar)
+	configuration, err := internalconfig.LoadConfiguration(configFile)
+	if err != nil {
+		log.Fatalf("Error read configuration: %s", err)
+	}
+	logg, err := internallogger.New(configuration.Logger)
+	if err != nil {
+		logg.Error("error create logger: " + err.Error())
+		os.Exit(1)
+	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
+
+	storage := NewStorage(ctx, *configuration)
+	calendar := app.New(logg, storage)
+	server := internalhttp.NewServer(logg, calendar, configuration.HTTP.Host, configuration.HTTP.Port)
 
 	go func() {
 		<-ctx.Done()
@@ -58,4 +67,19 @@ func main() {
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+}
+
+func NewStorage(ctx context.Context, configuration internalconfig.Config) app.Storage {
+	var storage app.Storage
+
+	switch configuration.Storage.Type {
+	case "memory":
+		storage = memorystorage.New()
+	case "base":
+		storage = sqlstorage.New(ctx, configuration.Storage.Dsn).Connect(ctx)
+	default:
+		log.Fatalln("Unknown type of storage: " + configuration.Storage.Type)
+	}
+
+	return storage
 }
