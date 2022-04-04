@@ -12,6 +12,7 @@ import (
 	"github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/app"
 	internalconfig "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/sql"
@@ -47,7 +48,30 @@ func main() {
 
 	storage := NewStorage(ctx, *configuration)
 	calendar := app.New(logg, storage)
+
+	// gRPC
+	serverGrpc := internalgrpc.NewServer(logg, calendar, configuration.GRPC.Host, configuration.GRPC.Port)
+
+	go func() {
+		if err := serverGrpc.Start(); err != nil {
+			logg.Error("failed to start grpc server: " + err.Error())
+		}
+	}()
+
+	go func() {
+		<-ctx.Done()
+		serverGrpc.Stop()
+	}()
+
+	// HTTP
 	server := internalhttp.NewServer(logg, calendar, configuration.HTTP.Host, configuration.HTTP.Port)
+
+	go func() {
+		if err := server.Start(ctx); err != nil {
+			logg.Error("failed to start grpc server: " + err.Error())
+			cancel()
+		}
+	}()
 
 	go func() {
 		<-ctx.Done()
@@ -62,11 +86,7 @@ func main() {
 
 	logg.Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
-	}
+	<-ctx.Done()
 }
 
 func NewStorage(ctx context.Context, configuration internalconfig.Config) app.Storage {

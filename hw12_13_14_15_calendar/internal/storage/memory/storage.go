@@ -57,3 +57,11 @@ func (s *Storage) Select() ([]storage.Event, error) {
 	}
 	return events, nil
 }
+
+func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
+	if event, ok := s.events[id]; ok {
+		return &event, nil
+	}
+
+	return nil, nil
+}

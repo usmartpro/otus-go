@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS events
     started_at          timestamp       NOT NULL,
     finished_at         timestamp       NOT NULL,
     description         TEXT,
-    notify_before_time  INT             NOT NULL default 0
+    notify_at           timestamp       NOT NULL
 );
 
 -- +goose Down
