@@ -73,7 +73,7 @@ func createApp(t *testing.T) *app.App {
 		t.Errorf("failed to open test log file: %s", err)
 	}
 
-	logger, err := logger.New(internalconfig.LoggerConf{"info", logFile.Name()})
+	logger, err := logger.New(internalconfig.LoggerConf{Level: "info", File: logFile.Name()})
 	if err != nil {
 		t.Errorf("failed to open test log file: %s", err)
 	}
