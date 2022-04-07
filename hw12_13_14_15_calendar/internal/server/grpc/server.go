@@ -169,7 +169,7 @@ func (s *Server) Delete(ctx context.Context, in *DeleteEventRequest) (*EventResp
 	return ResponseSuccess(), nil
 }
 
-func (s *Server) EventListDay(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) DayEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())
@@ -183,7 +183,7 @@ func (s *Server) EventListDay(ctx context.Context, in *EventsRequest) (*EventsRe
 	return ListResponseSuccess(events), nil
 }
 
-func (s *Server) EventListWeek(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) WeekEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())
@@ -197,7 +197,7 @@ func (s *Server) EventListWeek(ctx context.Context, in *EventsRequest) (*EventsR
 	return ListResponseSuccess(events), nil
 }
 
-func (s *Server) EventListMonth(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) MonthEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())

@@ -132,7 +132,7 @@ func (s *Storage) Select() ([]storage.Event, error) {
 func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
 	var e storage.Event
 
-	sql := `SELECT id, title, started_at, finished_at, description, user_id, notify_at 
+	sql := `SELECT id, user_id, title, started_at, finished_at, description, notify_at 
 			FROM events
 			WHERE id = $1`
 	err := s.conn.QueryRow(s.ctx, sql, id).Scan(
@@ -144,12 +144,12 @@ func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
 		&e.Description,
 		&e.NotifyAt,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error scan result: %w", err)
+	if err == nil {
+		return &e, nil
 	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 
-	return &e, nil
+	return nil, fmt.Errorf("error scan result: %w", err)
 }
