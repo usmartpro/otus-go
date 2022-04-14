@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage"
@@ -64,4 +65,28 @@ func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
 	}
 
 	return nil, nil
+}
+
+func (s *Storage) GetActualNotifyEvents(notifyTime time.Time) ([]storage.Event, error) {
+	var res []storage.Event
+
+	for _, e := range s.events {
+		if e.NotifyAt.Sub(notifyTime) == 0 {
+			res = append(res, e)
+		}
+	}
+
+	return res, nil
+}
+
+func (s *Storage) GetOldEvents(timeBefore time.Time) ([]storage.Event, error) {
+	var res []storage.Event
+
+	for _, e := range s.events {
+		if timeBefore.Sub(e.StartedAt) >= 0 {
+			res = append(res, e)
+		}
+	}
+
+	return res, nil
 }

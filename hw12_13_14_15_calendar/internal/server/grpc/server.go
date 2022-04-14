@@ -61,13 +61,14 @@ func (s *Server) Start() error {
 		return err
 	}
 
-	s.logg.Info("HTTP server run %s:%s", s.host, s.port)
+	s.logg.Info("GRPS server run %s:%s", s.host, s.port)
 
 	return s.grpcSrv.Serve(lsn)
 }
 
 func (s *Server) Stop() {
 	s.grpcSrv.GracefulStop()
+	s.logg.Info("GRPS server stopped")
 }
 
 func (s *Server) Create(ctx context.Context, in *Event) (*EventResponse, error) { // nolint:dupl
@@ -169,7 +170,7 @@ func (s *Server) Delete(ctx context.Context, in *DeleteEventRequest) (*EventResp
 	return ResponseSuccess(), nil
 }
 
-func (s *Server) EventListDay(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) DayEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())
@@ -183,7 +184,7 @@ func (s *Server) EventListDay(ctx context.Context, in *EventsRequest) (*EventsRe
 	return ListResponseSuccess(events), nil
 }
 
-func (s *Server) EventListWeek(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) WeekEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())
@@ -197,7 +198,7 @@ func (s *Server) EventListWeek(ctx context.Context, in *EventsRequest) (*EventsR
 	return ListResponseSuccess(events), nil
 }
 
-func (s *Server) EventListMonth(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
+func (s *Server) MonthEvents(ctx context.Context, in *EventsRequest) (*EventsResponse, error) {
 	dtStart, err := time.Parse("2006-01-02", in.GetDate())
 	if err != nil {
 		return nil, fmt.Errorf("invalid date value. Expected yyyy-mm-dd, got %s", in.GetDate())

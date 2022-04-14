@@ -132,7 +132,7 @@ func (s *Storage) Select() ([]storage.Event, error) {
 func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
 	var e storage.Event
 
-	sql := `SELECT id, title, started_at, finished_at, description, user_id, notify_at 
+	sql := `SELECT id, user_id, title, started_at, finished_at, description, notify_at 
 			FROM events
 			WHERE id = $1`
 	err := s.conn.QueryRow(s.ctx, sql, id).Scan(
@@ -144,12 +144,64 @@ func (s *Storage) SelectOne(id uuid.UUID) (*storage.Event, error) {
 		&e.Description,
 		&e.NotifyAt,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error scan result: %w", err)
+
+	if err == nil {
+		return &e, nil
 	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 
-	return &e, nil
+	return nil, fmt.Errorf("error scan result: %w", err)
+}
+
+func (s *Storage) GetActualNotifyEvents(notifyTime time.Time) ([]storage.Event, error) {
+	sql := `SELECT id, user_id, title, started_at, finished_at, description, notify_at
+			FROM events 
+			WHERE notify_at = $1`
+	rows, err := s.conn.Query(s.ctx, sql, notifyTime.Format(time.RFC3339))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return rowsToEvents(rows)
+}
+
+func (s *Storage) GetOldEvents(timeBefore time.Time) ([]storage.Event, error) {
+	sql := `SELECT id, user_id, title, started_at, finished_at, description, notify_at 
+			FROM events 
+			WHERE started_at <= $1`
+	rows, err := s.conn.Query(s.ctx, sql, timeBefore.Format(time.RFC3339))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return rowsToEvents(rows)
+}
+
+func rowsToEvents(rows pgx.Rows) ([]storage.Event, error) {
+	var events []storage.Event
+
+	for rows.Next() {
+		var e storage.Event
+		if err := rows.Scan(
+			&e.ID,
+			&e.UserID,
+			&e.Title,
+			&e.StartedAt,
+			&e.FinishedAt,
+			&e.Description,
+			&e.NotifyAt,
+		); err != nil {
+			return nil, fmt.Errorf("error scan result: %w", err)
+		}
+
+		events = append(events, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
