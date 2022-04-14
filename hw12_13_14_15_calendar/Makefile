@@ -36,4 +36,7 @@ lint: install-lint-deps
 migrate:
 	goose --dir=migrations postgres ${DB_CONN} up
 
+generate:
+	go generate ./...
+
 .PHONY: build run build-img run-img version test lint

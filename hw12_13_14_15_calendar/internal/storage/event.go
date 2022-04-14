@@ -13,13 +13,13 @@ var (
 )
 
 type Event struct {
-	ID               uuid.UUID
-	UserID           uuid.UUID
-	Title            string
-	StartedAt        time.Time
-	FinishedAt       time.Time
-	Description      string
-	NotifyBeforeTime time.Time
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	Title       string
+	StartedAt   time.Time
+	FinishedAt  time.Time
+	Description string
+	NotifyAt    time.Time
 }
 
 func NewEvent(
@@ -28,15 +28,15 @@ func NewEvent(
 	startedAt time.Time,
 	finishedAt time.Time,
 	description string,
-	notifyBeforeTime time.Time,
+	notifyAt time.Time,
 ) *Event {
 	return &Event{
-		ID:               uuid.New(),
-		UserID:           userID,
-		Title:            title,
-		StartedAt:        startedAt,
-		FinishedAt:       finishedAt,
-		Description:      description,
-		NotifyBeforeTime: notifyBeforeTime,
+		ID:          uuid.New(),
+		UserID:      userID,
+		Title:       title,
+		StartedAt:   startedAt,
+		FinishedAt:  finishedAt,
+		Description: description,
+		NotifyAt:    notifyAt,
 	}
 }

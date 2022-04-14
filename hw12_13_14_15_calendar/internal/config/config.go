@@ -4,16 +4,22 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	Logger  LoggerConf
 	Storage StorageConf
 	HTTP    HTTPConf
+	GRPC    GRPCConf
 }
 
 type HTTPConf struct {
+	Host string
+	Port string
+}
+
+type GRPCConf struct {
 	Host string
 	Port string
 }

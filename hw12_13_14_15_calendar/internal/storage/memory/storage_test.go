@@ -16,7 +16,7 @@ func TestStorage(t *testing.T) {
 		userID := uuid.New()
 		startedAt, _ := time.Parse("2006-01-02 15:04:05", "2022-01-01 00:00:00")
 		finishedAt, _ := time.Parse("2006-01-02 15:04:05", "2023-01-01 00:00:00")
-		notifyBeforeTime, _ := time.Parse("2006-01-02 15:04:05", "2022-06-01 00:00:00")
+		notifyAt, _ := time.Parse("2006-01-02 15:04:05", "2022-06-01 00:00:00")
 
 		event := memorystorage.NewEvent(
 			userID,
@@ -24,7 +24,7 @@ func TestStorage(t *testing.T) {
 			startedAt,
 			finishedAt,
 			"Test description",
-			notifyBeforeTime,
+			notifyAt,
 		)
 
 		// Insert
