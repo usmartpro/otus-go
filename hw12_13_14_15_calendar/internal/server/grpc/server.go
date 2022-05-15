@@ -61,13 +61,14 @@ func (s *Server) Start() error {
 		return err
 	}
 
-	s.logg.Info("HTTP server run %s:%s", s.host, s.port)
+	s.logg.Info("GRPS server run %s:%s", s.host, s.port)
 
 	return s.grpcSrv.Serve(lsn)
 }
 
 func (s *Server) Stop() {
 	s.grpcSrv.GracefulStop()
+	s.logg.Info("GRPS server stopped")
 }
 
 func (s *Server) Create(ctx context.Context, in *Event) (*EventResponse, error) { // nolint:dupl

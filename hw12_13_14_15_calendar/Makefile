@@ -1,4 +1,6 @@
 BIN := "./bin/calendar"
+BIN_SCHEDULER := "./bin/calendar_scheduler"
+BIN_SENDER := "./bin/calendar_sender"
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -8,9 +10,23 @@ DB_CONN := "postgresql://calendar:postgres@localhost:5432/calendar?sslmode=disab
 
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/scheduler
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
 
 run: build
-	$(BIN) -config ./configs/config.yaml
+	$(BIN) -config ./configs/calendar_config.yaml
+
+run-calendar:
+	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	$(BIN) -config ./configs/calendar_config.yaml
+
+run-scheduler:
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/scheduler
+	$(BIN_SCHEDULER) -config ./configs/scheduler_config.yaml
+
+run-sender:
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
+	$(BIN_SENDER) -config ./configs/sender_config.yaml
 
 build-img:
 	docker build \

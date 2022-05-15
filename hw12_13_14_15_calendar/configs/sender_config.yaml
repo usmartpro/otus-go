@@ -1,0 +1,10 @@
+logger:
+  level: info
+  file: stderr
+storage:
+  type: "base"
+  dsn: "postgresql://calendar:postgres@localhost:5432/calendar"
+rabbit:
+  dsn: "amqp://guest:guest@localhost:5672"
+  exchange: "calendar_notifications"
+  queue: "calendar_notifications"

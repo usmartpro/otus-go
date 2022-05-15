@@ -14,14 +14,13 @@ import (
 	internallogger "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/sql"
+	internalfactory "github.com/usmartpro/otus-go/hw12_13_14_15_calendar/internal/storage/factory"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "configs/config.yaml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "configs/calendar_config.yaml", "Path to configuration file")
 }
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 		return
 	}
 
-	configuration, err := internalconfig.LoadConfiguration(configFile)
+	configuration, err := internalconfig.LoadCalendarConfiguration(configFile)
 	if err != nil {
 		log.Fatalf("Error read configuration: %s", err)
 	}
@@ -46,7 +45,7 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	storage := NewStorage(ctx, *configuration)
+	storage := internalfactory.NewStorage(ctx, configuration.Storage)
 	calendar := app.New(logg, storage)
 
 	// gRPC
@@ -87,19 +86,4 @@ func main() {
 	logg.Info("calendar is running...")
 
 	<-ctx.Done()
-}
-
-func NewStorage(ctx context.Context, configuration internalconfig.Config) app.Storage {
-	var storage app.Storage
-
-	switch configuration.Storage.Type {
-	case "memory":
-		storage = memorystorage.New()
-	case "base":
-		storage = sqlstorage.New(ctx, configuration.Storage.Dsn).Connect(ctx)
-	default:
-		log.Fatalln("Unknown type of storage: " + configuration.Storage.Type)
-	}
-
-	return storage
 }

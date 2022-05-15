@@ -67,5 +67,9 @@ func (s *Server) Start(ctx context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	return s.server.Shutdown(ctx)
+	var err error
+	if err = s.server.Shutdown(ctx); err == nil {
+		s.logger.Info("HTTP server stopped")
+	}
+	return err
 }

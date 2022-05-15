@@ -8,5 +8,5 @@ grpc:
     host: "127.0.0.1"
     port: "50051"
 storage:
-  type: "base" #"memory"
+  type: "base" #"memory", "base"
   dsn: "postgresql://calendar:postgres@localhost:5432/calendar"
